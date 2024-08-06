@@ -14,7 +14,7 @@ function refreshWeather(response) {
   descriptionElement.innerHTML = response.data.condition.description;
   humidityElement.innerHTML = `Humidity: ${response.data.temperature.humidity}%`;
   windSpeedElement.innerHTML = `Wind Speed: ${response.data.wind.speed} km/h`;
-  temperatureElement.innerHTML = `Temperature: ${Math.round(temperature)}°C`;
+  temperatureElement.innerHTML = `${Math.round(temperature)}`;
   iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon" alt="Weather icon" />`;
 }
 
