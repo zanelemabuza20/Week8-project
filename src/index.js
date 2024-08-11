@@ -14,22 +14,14 @@ function refreshWeather(response) {
   descriptionElement.innerHTML = response.data.condition.description;
   humidityElement.innerHTML = `Humidity: ${response.data.temperature.humidity}%`;
   windSpeedElement.innerHTML = `Wind Speed: ${response.data.wind.speed} km/h`;
-  temperatureElement.innerHTML = `${Math.round(temperature)}`;
+  temperatureElement.innerHTML = `${Math.round(temperature)}℃`;
   iconElement.innerHTML = `<img src="${response.data.condition.icon_url}" class="weather-app-icon" alt="Weather icon" />`;
 }
 
 function formatDate(date) {
   let minutes = date.getMinutes();
   let hours = date.getHours();
-  let days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+  let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
   let day = days[date.getDay()];
 
   if (minutes < 10) {
@@ -43,41 +35,43 @@ function searchCity(city) {
   let apiKey = "11d97ctd3be7f23f95141o2bae80ac44";
   let apiUrl = `https://api.shecodes.io/weather/v1/current?query=${city}&key=${apiKey}&units=metric`;
   axios.get(apiUrl).then(refreshWeather);
+  getForecast(city);  // Call the forecast function with the city parameter
 }
 
 function handleSearchSubmit(event) {
   event.preventDefault();
   let searchInput = document.querySelector("#search-form-input");
-
   searchCity(searchInput.value);
 }
 
-function getForecast() {
+function getForecast(city) {
  let apiKey = "11d97ctd3be7f23f95141o2bae80ac44";
  let apiUrl = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
- axios(apiUrl).then(displayForecast);
- 
+ axios.get(apiUrl).then(displayForecast);
 }
 
 function displayForecast(response) {
-  console.log(response.data)
-
   let forecastElement = document.querySelector("#forecast");
 
-  let days = ["Tue", "Wed", "Thur", "Fri", "Sat"];
   let forecastHtml = ""; 
-  
-  days.forEach(function (day) {
+
+  response.data.daily.slice(0, 5).forEach(function (day) {
+    let date = new Date(day.time * 1000);
+    let options = { weekday: 'short' };
+    let dayName = date.toLocaleDateString(undefined, options);
+    
     forecastHtml +=
     `
     <div class="weather-forecast-day">
-      <div class="weather-forecast-date">${day}</div> 
-      <div class="weather-forecast-icon">⛅</div>  
+      <div class="weather-forecast-date">${dayName}</div> 
+      <div class="weather-forecast-icon">
+        <img src="${day.condition.icon_url}" class="weather-forecast-icon" alt="Forecast icon" />
+      </div>  
       <div class="weather-forecast-temperatures">
         <div class="weather-forecast-temperature">
-          <strong>15℃</strong>
+          <strong>${Math.round(day.temperature.maximum)}℃</strong>
         </div>
-        <div class="weather-forecast-temperature">9℃</div>
+        <div class="weather-forecast-temperature">${Math.round(day.temperature.minimum)}℃</div>
       </div>  
     </div>
     `;
@@ -89,6 +83,6 @@ function displayForecast(response) {
 let searchFormElement = document.querySelector("#search-form");
 searchFormElement.addEventListener("submit", handleSearchSubmit);
 
+// Initial search
 searchCity("London");
-getForecast("London");
 
